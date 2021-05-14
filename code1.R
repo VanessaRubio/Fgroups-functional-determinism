@@ -54,7 +54,7 @@ scores = pca$x
 var = sd^2
 var.percent = var/sum(var) * 100
 
-col = 3     #num of variables!!!!!!!! check every time!!!!!
+col = 3 
 barplot(var.percent, xlab="PC", ylab="Percent Variance", names.arg=1:length(var.percent), las=1, ylim=c(0,max(var.percent)), col="gray")
 abline(h=1/col*100, col="red")
 
