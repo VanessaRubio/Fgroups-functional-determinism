@@ -128,7 +128,7 @@ print(date())
 # harms et al, habitats 1:7
 habmat=matrix(harms$HabitatNumber,nrow=25)
 
-## code taken and modified from: Harms et al 2001, Ecology
+## code taken and modified from: Harms et al 2001, Ecology; and the forestgeo package and function tt_test
 
 torusallspp = function(habmat, allabund, species.list, plotdim=c(1000,500), gridsize=20) #habmat2,allabund,species.list,plotdim=c(1000,500), gridsize=20
 {
