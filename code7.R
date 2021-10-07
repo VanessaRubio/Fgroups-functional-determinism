@@ -1,4 +1,4 @@
-# checked on april 16 - 2021
+# checked on october - 2021
 ####################################################################################################################################
 ################################### torus translation ##############################################################################
 ### this code performs the torus translation for the functional guilds
@@ -8,8 +8,8 @@ library("vegan")
 library("dplyr")
 library("NbClust")
 ######## PCA
-setwd("~/Downloads/torus")
-bci.soil = read.table("~/Downloads/torus/bci.block20.data.txt",h=T) #goes from 0 to 24 and then 100 to 124, 200 to 224....,4900 to 4924, or 1:1250 from bottom of each column.
+bci.soil = read.table("bci.block20.data.txt",h=T) #goes from 0 to 24 and then 100 to 124, 200 to 224....,4900 to 4924, or 1:1250 from bottom of each column.
+pca.soil = prcomp(bci.soil[,3:15],retx = T, scale. = T)
 
 ######## this arranges the data in a nicer table with index (x_y values in plot, x, y, PC1, PC2, PC3, and all nutrient values)
 index<-paste((bci.soil$x-10),"_",(bci.soil$y-10),sep="")
@@ -17,7 +17,7 @@ envt.index<-cbind(index, bci.soil[,1:2], pca.soil$x[,1:3],bci.soil[,3:15])
 
 #### repeat this code for all the different census
 
-census=read.table("~/Downloads/MasterBCI_C1.txt",h=T)
+census=read.table("MasterBCI_C7.txt",h=T)
 envt.index$quad = sort(unique(census$quadrat))
 
 ######## assigns the soil PCA and the raw soil variables to the census data
@@ -35,9 +35,10 @@ all.variables = do.call("rbind", lapply(census$quadrat, funk))
 data = cbind(census,all.variables) #binds census data with the variables data
 
 ########  Add the raw trait data to the census data
-traits = read.table("~/Downloads/BCI_sp.txt",h=T) #trait data
-traits$hmax = log(traits$hmax)
-traits$la = log(traits$la)
+traits = read.table("traits.txt",h=T) #trait data
+traits$hmax = log10(traits$hmax)
+traits$lma=log10(traits$lma3)
+traits$la = log10(traits$la3)
 
 funk2 = function(x){ #
   
@@ -54,7 +55,7 @@ data = cbind(data,all.variables.traits)
 
 ######## Add the functional guilds to the data
 ######## cluster with the functional guilds
-load('~/Downloads/bci.clust.Rdata') #cluster of species by guild
+load('bci.clust.aug.Rdata') #cluster of species by guild
 
 funk3 = function(x){ 
 
@@ -73,7 +74,7 @@ data$fg = as.numeric(unlist(lapply(data$code,funk3)))
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 
 #loads the topographic types for each quadrat
-harms = read.table("~/Downloads/harms.txt",h=T)
+harms = read.table("harms.txt",h=T)
 
 harms$quad = sort(unique(census$quadrat))
 funk4 = function(x){
@@ -87,19 +88,17 @@ funk4 = function(x){
 }
 
 data$harms = as.numeric(unlist(lapply(data$quad, funk4))) 
+names(data)
+data = data[,-c(32,34,35,36,37,38,39,40,41,43)]
 data = na.omit(data)
 length(unique(data$code))
 
-
-#filename=paste("data.c1.torus",".Rdata",sep="")
-#save(data,file=filename)
-
+filename=paste("data.c7.torus",".Rdata",sep="")
+save(data,file=filename)
 
 #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### #### 
 
-load('data.c1.torus.Rdata') #data
 data[,2]=NULL #removes code duplicated
-harms = read.table("~/Downloads/harms.txt",h=T) #harms et al. soil classes 7
 
 ################################################## WITH FUNCTIONAL GUILDS ##################################################
 ################################################## ################################################## ################################################## 
@@ -281,9 +280,7 @@ View(harms)
 ################################################################## graphs  #############################################################################
 ## 
 
-cen=read.table("~/Downloads/MasterBCI_C5.txt",h=T)
-harms = read.table("~/Downloads/harms.txt",h=T) #harms et al. soil classes 7
-load('~/Downloads/bci.clust.Rdata') #clust is the file
+cen=read.table("MasterBCI_C7.txt",h=T)
 
 funk3 = function(x){
   
@@ -297,43 +294,70 @@ funk3 = function(x){
 
 cen$fg = as.numeric(unlist(lapply(cen$code,funk3)))
 
-## f.g3
-image(xax,yax,t(bci.map))
-guild3 = cen[cen$fg == 3,]
-selection <- !is.na(guild3$px) & !is.na(guild3$py)
-guild3_noNA <- guild3[selection, ]
+### topography
 
-x <- guild3_noNA$px
-y <- guild3_noNA$py
-dens2d <- MASS::kde2d(x, y)
-d <- densCols(x, y, colramp = colorRampPalette(rev(rainbow(10, end = 4/6))))                                                                                         
-point.cols <- scales::alpha(d, .3)                                                                                                                                          
-plot(x, y,  pch = 20, col = point.cols)
+library("RColorBrewer")
+bci.map = matrix(harms$HabitatNumber,nrow=25)
+xax=seq(0,1000,by=20)
+yax=seq(0,500,by=20)
+colores = c('#f4cae4','#b3e2cd','#cbd5e8','#fff2ae','#f1e2cc','#e6f5c9','#fdcdac')
 
-## f.g1
-par(mfrow = c(1,2))
-image(xax,yax,t(bci.map))
+par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
+image(xax,yax,t(bci.map),col = adjustcolor(colores, alpha.f = 1), xlab = "x", ylab = "y")
+legend(bty = "n",x = "right", inset=c(-0.3,0), legend=c("High plateau","Low plateau","Mixed","Slope","Stream","Swamp","Young forest"), pch=rep(15,7), col = colores, title="Habitat")
+
+### plot guilds
+## removing the borders:
+
+cen = cen[cen$px>=20,]
+cen = cen[cen$px<=980,]
+cen = cen[cen$py>=20,]
+cen = cen[cen$py<=480,]
+
+##f.g1
 guild1 = cen[cen$fg == 1,]
 selection <- !is.na(guild1$px) & !is.na(guild1$py)
 guild1_noNA <- guild1[selection, ]
 
 x <- guild1_noNA$px
 y <- guild1_noNA$py
-dens2d <- MASS::kde2d(x, y)
-d <- densCols(x, y, colramp = colorRampPalette(rev(rainbow(10, end = 4/6))))                                                                                         
-point.cols <- scales::alpha(d, .3)                                                                                                                                          
-plot(x, y,  pch = 20, col = point.cols)
+density.object <- grDevices:::.smoothScatterCalcDensity(cbind(x, y), nbin = 128)
+density.object$fhat <- density.object$fhat / sum(density.object$fhat)
 
-## f.g3 
-par(mfrow = c(1,2))
-image(xax,yax,t(bci.map))
+cols = brewer.pal(7, "Greens")
+fields::image.plot(density.object$x1,density.object$x2,density.object$fhat, col = cols, legend.only = F, zlim = c(0,0.00020))
+
+
+#f.g2
 guild2 = cen[cen$fg == 2,]
 selection <- !is.na(guild2$px) & !is.na(guild2$py)
 guild2_noNA <- guild2[selection, ]
 
 x <- guild2_noNA$px
 y <- guild2_noNA$py
-dens2d <- MASS::kde2d(x, y)
-d <- densCols(x, y, colramp = colorRampPalette(rev(rainbow(10, end = 4/6))))                                                                                         
-point.cols <- scales::alpha(d, .3)                                                                                                                                          
-plot(x, y,  pch = 20, col = point.cols)
+density.object <- grDevices:::.smoothScatterCalcDensity(cbind(x, y), nbin = 128)
+density.object$fhat <- density.object$fhat / sum(density.object$fhat)
+
+fields::image.plot(density.object$x1,density.object$x2,density.object$fhat, col = cols, legend.only = F, zlim = c(0,0.00020))
+
+
+
+##f.g3
+
+
+guild3 = cen[cen$fg == 3,]
+selection <- !is.na(guild3$px) & !is.na(guild3$py)
+guild3_noNA <- guild3[selection, ]
+
+x <- guild3_noNA$px
+y <- guild3_noNA$py
+
+density.object <- grDevices:::.smoothScatterCalcDensity(cbind(x, y), nbin = 128)
+density.object$fhat <- density.object$fhat / sum(density.object$fhat)
+
+cols = brewer.pal(7, "Greens")
+fields::image.plot(density.object$x1,density.object$x2,density.object$fhat, col = cols, legend.only = F, zlim = c(0,0.00020))
+
+
+
+
