@@ -1,4 +1,4 @@
-# checked on april 15 - 2021
+# checked on october 7 - 2021
 ###################################################################################################
 ################################### graphs empirical GUILD PROPORTION #############################
 #this code calculates and graphs the empirical functional guild proportions of the 7 census of bci 
