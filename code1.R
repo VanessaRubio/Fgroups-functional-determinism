@@ -6,7 +6,6 @@
 #the simulated lines (medians) come from: april.code3.R
 
 rm(list = ls())
-setwd("C:/Users/Libraries/Desktop/A.Codes for guilds 2021")
 
 #load BCI census data
 census1=read.table("MasterBCI_C1.txt",h=T)
@@ -33,16 +32,18 @@ census7$fg=rep(0,nrow(census7))
 ###################################################################################################
 #load the traits and performs the PCA
 
-traits=read.table("BCI_sp.txt",h=T)
-traits=na.omit(traits)
+traits=read.table("traits.txt",h=T) 
 rownames(traits) = traits$code
 traits$code = NULL
 
 shapiro.test(traits$hmax) #maximum height
-traits$hmax=log(traits$hmax)
+traits$hmax=log10(traits$hmax)
 
 shapiro.test(traits$la) #leaf area
-traits$la=log(traits$la)
+traits$la=log10(traits$la)
+
+shapiro.test(traits$lma3) #leaf mass per area
+traits$lma3=log10(traits$lma3)
 
 shapiro.test(traits$wsg) #wood density
 #traits$wsg=log(traits$wsg)
@@ -54,7 +55,7 @@ scores = pca$x
 var = sd^2
 var.percent = var/sum(var) * 100
 
-col = 3 
+col = dim(pca$x)[2] 
 barplot(var.percent, xlab="PC", ylab="Percent Variance", names.arg=1:length(var.percent), las=1, ylim=c(0,max(var.percent)), col="gray")
 abline(h=1/col*100, col="red")
 
@@ -68,22 +69,20 @@ nbclust_out <- NbClust(
   data = pca$x[,1:2],
   distance = "euclidean",
   min.nc = 2, # minimum number of clusters
-  max.nc = 15, # maximum number of clusters
+  max.nc = 12, # maximum number of clusters
   method = "ward.D",
   index = "all"
 )
 
-clust = nbclust_out$Best.partition # this gives 3 guilds 
-# filename=paste("bci.clust",".Rdata",sep="")
-# save(clust,file=filename)
+table = t(nbclust_out$Best.nc)
+write.table(table, "nbclust.csv", sep = ",", col.names = NA)
+clust = nbclust_out$Best.partition
 
 #######################################################################################
 #######################################################################################
-#### For the 234 species: Empirical graphics
+#### For the  species: Empirical graphics
 
 #PCA by guild
-
-load('bci.clust.Rdata') #cluster file
 
 funk = function(x){ #compare the cluster species to the data to assign FG
   
@@ -94,11 +93,15 @@ funk = function(x){ #compare the cluster species to the data to assign FG
   return(fg)
   
 }
-guilds = as.numeric(unlist(lapply(rownames(traits), funk))) 
-traits$guild = guilds
-ordered = traits[order(traits$guild) , ]
 
-pca=prcomp(na.omit(ordered[,1:3]),retx=TRUE,scale.=T)
+#Figure 2
+data = data.frame("wsg" = traits2$wsg,"hmax" = traits2$hmax,"lma" = traits2$lma3, "la" = traits2$la3)
+guilds = as.numeric(unlist(lapply(rownames(data), funk))) 
+data$guild = guilds
+ordered = data[order(data$guild) , ]
+n.variables = 4
+
+pca=prcomp(na.omit(ordered[,1:n.variables]),retx=TRUE,scale.=T)
 biplot(pca)
 sd = pca$sdev
 loadings = data.frame(pca$rotation)
@@ -106,17 +109,37 @@ scores = pca$x
 var = sd^2
 explained.variance = var/sum(var) * 100
 
-pch.group <- c(rep(19, times=28), rep(21, times=105), rep(6, times=101))
+pch.group <- c(rep(16, times= as.numeric(table(clust)[1])), rep(15, times=as.numeric(table(clust)[2])), rep(17, times=as.numeric(table(clust)[3]))) #circulo, cuadrado, triangulo
+colores = c(rep("deepskyblue4",as.numeric(table(clust)[1])),rep("darkgreen",as.numeric(table(clust)[2])),rep("tan1", as.numeric(table(clust)[3])))
 lambda <- pca$sdev * sqrt(nrow(pca$x)) 
-plot (t(t(pca$x)/lambda),pch=pch.group, xlab="PC1 (41.8%)", ylab="PC2 (34.5%)", yaxt="n", xaxt="n",ylim = c(-0.2,0.2),col = adjustcolor(9,alpha.f=0.75)) 
+
+plot (t(t(pca$x)/lambda),pch=pch.group, xlab="PC1 (41.12%)", ylab="PC2 (30.94%)", yaxt="n", xaxt="n",ylim = c(-0.2,0.2),xlim = c(-0.21,0.21),col = adjustcolor(colores,alpha.f=0.4)) 
 axis(side=1, at=c(-0.1,0,0.1), labels=c(-0.1,0,0.1), mgp=c(3,1,0), cex.axis=0.9)
 axis(side=2, at=c(-0.1,0,0.1), labels=c(-0.1,0,0.1), mgp=c(3,1,0), cex.axis=0.9)
 abline(v=0, lty=2, col="grey50")
 abline(h=0, lty=2, col="grey50")
+l.x <- pca$rotation[,1]/5
+l.y <- pca$rotation[,2]/5
 
-legend("topleft", legend=c("Guild 1", "Guild 2", "Guild 3"), pch=c(19, 21, 6), pt.cex=1, cex=0.75)
+# Label position
+l.pos <- l.y # Create a vector of y axis coordinates
+lo <- which(l.y < 0) # Get the variables on the bottom half of the plot
+hi <- which(l.y > 0) # Get variables on the top half
+# Replace values in the vector
+l.pos <- replace(l.pos, lo, "1")
+l.pos <- replace(l.pos, hi, "3")
+arrows(x0=0, x1=l.x, y0=0, y1=l.y, col="black", length=0.1, lwd=2)
+row.names(pca$rotation) = c("wsg", "hmax", "lma", "la") 
 
-#assign the functional group to the data, applying the function funk
+l.pos[3] = 1
+text(l.x, l.y, labels=row.names(pca$rotation), col="black", pos=l.pos, cex = 0.8)
+
+legend("topleft", legend=c("FG 1", "FG 2", "FG 3"), col=  adjustcolor(c("deepskyblue4","darkgreen","tan1"),alpha.f = 0.4),pch=c(16, 15, 17), pt.cex=1, cex=0.75)
+
+################################################################################################################################################################################
+################################################################################################################################################################################
+################################################################################################################################################################################
+################ assign the functional group to the data, applying the function funk
 
 funk = function(x){ #compare the cluster species to the data to assign FG
   
@@ -135,7 +158,6 @@ f.g4=as.numeric(unlist(lapply(census4$code, funk)))
 f.g5=as.numeric(unlist(lapply(census5$code, funk)))
 f.g6=as.numeric(unlist(lapply(census6$code, funk)))
 f.g7=as.numeric(unlist(lapply(census7$code, funk)))
-#f.g8=as.numeric(unlist(lapply(census8$code, funk)))
 
 #create the tables, for each census
 cen.dat1 = data.frame(cbind(f.g1,census1$quadrat,census1$StemID, as.data.frame(census1$code),1))
@@ -214,8 +236,6 @@ for (i in 1:length(cen.emp)){
 ###
 
 n.fg = 3
-#g.all is a list of each census, [[1]]is the simulation; each one has the total number of FGs as column heads and the total number of individuals
-
 fun = function(x){x/sum(x)} #to calculate the percentages
 
 g = g.all.emp #censuses
@@ -238,9 +258,9 @@ for (i in 1:n.fg){
 
 ### plot of empirical data for functional guilds proportions
 # 
-plot(cn1[[1]],type="b",yaxt="n",xlab="Census",ylab="Proportion",ylim=c(0,0.72),pch = 19,cex = 1, cex.axis = 1, cex.lab = 1)
+plot(cn1[[1]],type="b",yaxt="n",xlab="Census",ylab="Proportion",ylim=c(0,0.72),pch = 16,cex = 1, cex.axis = 1, cex.lab = 1)
 for (h in 2:n.fg){
-  p = c(19,21,6)
+  p = c(16,15,17)
   lines(cn1[[h]],lwd=1,pch=p[h],type="b", cex = 1)
 }
 axis(2, at=c(0.1,0.2,0.3,0.4,0.5,0.6,0.7), labels=c("0.1","0.2","0.3","0.4","0.5","0.6","0.7"),tick=T, cex.axis = 1)
