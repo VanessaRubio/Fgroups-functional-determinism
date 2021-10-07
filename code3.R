@@ -2,8 +2,6 @@
 ###################################################################################################
 ################################### graphs neutral sims ###########################################
 #This code graphs the results from code2.R
-setwd("C:/Users/Libraries/Desktop/A.Codes for guilds 2021")
-
 table3 = list() #
  
 for (i in 1:500){ 
