@@ -1,9 +1,8 @@
-# checked on april 15 - 2021
+# checked on october - 2021
 #############################################################################################
 ################################### shannon index ###########################################
 #This code calculates the shannon index of the simulations
 
-setwd("C:/Users/Libraries/Desktop/A.Codes for guilds 2021")
 rm(list = ls())
 # 
 ### SHANNON INDEX 
@@ -85,17 +84,16 @@ for (i in 1:n.fg){
 ## plot
 par(mfrow=c(1,3))
 
-plot(medians_sh[[1]],type="b",ylim = c(1.809,1.818),main="Guild 1",xlab="Census",ylab="Shannon Index",pch=19)
-polygon(c(1:7,rev(1:7)),c(downs_sh[[1]],rev(ups_sh[[1]])),col="grey70",border=F)
-lines(medians_sh[[1]],type="b",pch=19)
+plot(cex = 2, cex.axis = 1.5, cex.lab = 1.5,medians_sh[[1]],type="b",ylim = c(1.5326,1.536),main="Guild 1",xlab="Census",ylab="Shannon Index",pch=16, col = adjustcolor("deepskyblue4",alpha.f = 0.5))
+polygon(c(1:7,rev(1:7)),c(downs_sh[[1]],rev(ups_sh[[1]])),col=adjustcolor("grey70", alpha.f = 0.3),border=F)
+lines(medians_sh[[1]],type="b",pch=19, col = adjustcolor("deepskyblue4",alpha.f = 0.5), lwd = 2)
 
-plot(medians_sh[[2]],type="b",ylim=c(3.065,3.07),main="Guild 2",xlab="Census",ylab="Shannon Index",pch=21)
-polygon(c(1:7,rev(1:7)),c(downs_sh[[2]],rev(ups_sh[[2]])),col="grey70",border=F)
-lines(medians_sh[[2]],type="b",pch=21)
+plot(cex = 2, cex.axis = 1.5, cex.lab = 1.5,medians_sh[[2]],type="b",ylim=c(3.492,3.495),main="Guild 2",xlab="Census",ylab="Shannon Index",pch=15, col = adjustcolor("darkgreen",alpha.f = 0.5))
+polygon(c(1:7,rev(1:7)),c(downs_sh[[2]],rev(ups_sh[[2]])),col=adjustcolor("grey70", alpha.f = 0.3),border=F)
+lines(medians_sh[[2]],type="b",pch=15, col = adjustcolor("darkgreen",alpha.f = 0.5),lwd = 2)
 
-plot(medians_sh[[3]],type="b",ylim=c(3.525,3.532),main="Guild 3",xlab="Census",ylab="Shannon Index",pch=22)
-polygon(c(1:7,rev(1:7)),c(downs_sh[[3]],rev(ups_sh[[3]])),col="grey70",border=F)
-lines(medians_sh[[3]],type="b",pch=6)
-
+plot(cex = 2, cex.axis = 1.5, cex.lab = 1.5,medians_sh[[3]],type="b",ylim=c(3.437,3.4425),main="Guild 3",xlab="Census",ylab="Shannon Index",pch=17, col = adjustcolor("tan1",alpha.f = 0.5))
+polygon(c(1:7,rev(1:7)),c(downs_sh[[3]],rev(ups_sh[[3]])),col=adjustcolor("grey70", alpha.f = 0.3),border=F)
+lines(medians_sh[[3]],type="b",pch=17, col = adjustcolor("tan1",alpha.f = 0.5), lwd = 2)
 
 
