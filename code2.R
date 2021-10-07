@@ -8,7 +8,6 @@
 #data used: MasterBCI_C1.txt , bci.clust.2020.Rdata , counts.Rdata (empirical deaths and new recruits per census)
 
 rm(list = ls())
-setwd("C:/Users/Libraries/Desktop/A.Codes for guilds 2021")
 
 #load bci census data: cleaned census 1 from code 1
 cen.data1 = readRDS(paste0("census.data", "/cen.data", 1, ".rds"))
@@ -18,15 +17,17 @@ cen.data1 = readRDS(paste0("census.data", "/cen.data", 1, ".rds"))
 ##########################
 
 census1 = cen.data1
+colnames(census1)[colnames(census1) == "X1"] = "hold"
+load('bci.clust.aug.Rdata') #cluster file
 
 #deads and new individuals each census
-load('counts.Rdata')
-
+counts = readRDS("counts.rds") #deads and new
 
 #starts with census1
 census1$id = NULL
-
-temp=census1[,2:4]
+census1$dbh = NULL
+head(census1)
+temp=census1[,2:4] #quad, code, hold
 
 #simulation for 7 time points (7 census) 500 times/replicates
 dir.create("simulation_output")
