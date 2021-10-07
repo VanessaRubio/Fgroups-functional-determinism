@@ -1,4 +1,4 @@
-# checked on april 15 - 2021
+# checked on october - 2021
 ###################################################################################################
 ################################### NEUTRAL SIMULATIONS ###########################################
 #This code simulates neutral dynamics on the bci data
