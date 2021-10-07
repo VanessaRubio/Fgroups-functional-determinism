@@ -118,16 +118,16 @@ for (i in 1:f.g){
 
 par(mfrow=c(1,3))
 
-plot(medians[[1]],type="b",ylim=c(0.0607,0.0612),main="Guild 1",xlab="Census",ylab="Proportion",pch=19)
-polygon(c(1:7,rev(1:7)),c(lows[[1]],rev(ups[[1]])),col="grey70",border=F)
-lines(medians[[1]],type="b",pch=19)
+plot(cex.main = 2, cex = 2, cex.axis = 1.5, cex.lab = 1.5, medians[[1]],type="b",ylim=c(0.2715,0.2722),main="Guild 1",xlab="Census",ylab="Proportion",pch=16, col = adjustcolor("deepskyblue4",alpha.f = 0.5))
+polygon(c(1:7,rev(1:7)),c(lows[[1]],rev(ups[[1]])),col=adjustcolor("grey70", alpha.f = 0.3),border=F)
+lines(medians[[1]],type="b",pch=16, col = adjustcolor("deepskyblue4",alpha.f = 0.4), lwd = 2)
 
-plot(medians[[2]],type="b",ylim=c(0.6731,0.6738),main="Guild 2",xlab="Census",ylab="Proportion",pch=21)
-polygon(c(1:7,rev(1:7)),c(lows[[2]],rev(ups[[2]])),col="grey70",border=F)
-lines(medians[[2]],type="b",pch=21)
+plot(cex.main = 2, cex = 2, cex.axis = 1.5, cex.lab = 1.5, medians[[2]],type="b",ylim=c(0.5737,0.5742),main="Guild 2",xlab="Census",ylab="Proportion",pch=15, col = adjustcolor("darkgreen",alpha.f = 0.5))
+polygon(c(1:7,rev(1:7)),c(lows[[2]],rev(ups[[2]])),col=adjustcolor("grey70", alpha.f = 0.3),border=F)
+lines(medians[[2]],type="b",pch=15, col = adjustcolor("darkgreen",alpha.f = 0.4),lwd = 2)
 
-plot(medians[[3]],type="b",ylim=c(0.265,0.266),main="Guild 3",xlab="Census",ylab="Proportion",pch=22)
-polygon(c(1:7,rev(1:7)),c(lows[[3]],rev(ups[[3]])),col="grey70",border=F)
-lines(medians[[3]],type="b",pch=6)
+plot(cex.main = 2, cex = 2, cex.axis = 1.5, cex.lab = 1.5, medians[[3]],type="b",ylim=c(0.1541,0.1546),main="Guild 3",xlab="Census",ylab="Proportion",pch=17, col = adjustcolor("tan1",alpha.f = 0.5))
+polygon(c(1:7,rev(1:7)),c(lows[[3]],rev(ups[[3]])),col=adjustcolor("grey70", alpha.f = 0.3),border=F)
+lines(medians[[3]],type="b",pch=17, col = adjustcolor("tan1",alpha.f = 0.4), lwd = 2)
 
 ### add the medians to the bci empirical data in code1.R
